@@ -1,76 +1,93 @@
 # Dwij Vyas — Portfolio
 
-Three pages, one content file, no build step.
+**Live:** https://dwijvyasportfolio.vercel.app
 
-| File | What it is |
-| --- | --- |
-| `index.html` | The portfolio — the 3D temple world, five chapters |
-| `recruiter.html` | Recruiter mode — the whole record on one printable page |
-| `admin.html` | The editor — sign in, change content, publish |
-| `content.json` | **All content lives here.** Both pages read it at load |
+Portfolio of Dwij Vyas, Electronics & Communication Engineering undergraduate at Birla Vishvakarma Mahavidyalaya. It covers hardware and the software that runs it: rescue drones, a breadboard 4-bit microprocessor, embedded AI, and the AERONEX ground station.
 
-Everything else is assets: `secret-pathways-assets/` (the world),
-`inner-green-assets/` (fonts), the résumé PDF, project images.
+The site is plain HTML, CSS and JavaScript with no build step and no framework. All content comes from one file, `content.json`, and a browser-based editor at `/admin` updates that file through the GitHub API.
 
 ---
 
-## Deploying to Vercel
+## Pages
 
-**1 · Put these files in a GitHub repository.**
-Drop the whole folder in at the repo root. Nothing needs compiling.
+| Route | File | What it is |
+|---|---|---|
+| `/` | `index.html` | Home: hero, key figures, introduction, a working AM/FM/PSK modulator you can listen to, the AVION airframe annotated part by part, footage, a film strip of project photographs, selected work |
+| `/work` | `work.html` | Every project, as a numbered list or a grid, filterable by discipline |
+| `/project?p=<id>` | `project.html` | One case study: overview, specifications, optional chapters, gallery, next project |
+| `/about` | `about.html` | Education, timeline, skills |
+| `/resume` | `resume.html` | Online résumé built from `content.json`, printable, with the PDF |
+| `/admin` | `admin.html` | Content editor (not indexed by search engines) |
+| — | `404.html` | Not-found page |
 
-**2 · Import the repo at [vercel.com/new](https://vercel.com/new).**
-Framework preset: **Other**. Leave build command and output directory empty —
-this is static HTML, so there is nothing to build. Deploy.
+## Repository layout
 
-**3 · Point your domain at it** (optional) under Settings → Domains.
+```
+.
+├── index.html, work.html, about.html, project.html, resume.html, 404.html
+├── admin.html              content editor
+├── content.json            all content: profile, contact, education, milestones, projects, skills
+├── vercel.json             clean URLs, security headers, caching rules
+├── assets/
+│   ├── site.css            the design system
+│   ├── site.js             shared behaviour: content loading, header, contact, lists, cursor, sound, shortcuts
+│   ├── blob.js             hero glass shader (WebGL)
+│   ├── scope.js            modulator: oscilloscope and audio
+│   ├── drone.js            AVION airframe scene (three.js)
+│   ├── system.js           chapter stepping and part callouts for the airframe
+│   ├── aeronex.glb         airframe model
+│   ├── img/                project photographs (WebP, max 1280 px wide)
+│   ├── video/              background footage
+│   └── favicon-*.png, apple-touch-icon.png, avatar.webp, portrait-hero.webp
+├── fonts/                  self-hosted WOFF2 fonts and their licence (OFL.txt)
+├── vendor/                 three.js and Lenis, with their licences
+├── tools/build_resume.py   builds Dwij_Vyas_Resume.pdf from content.json
+├── Dwij_Vyas_Resume.pdf, og-image.jpg, favicon.ico, robots.txt, sitemap.xml
+├── CLAUDE.md               working notes for AI coding agents
+└── CREDITS.md              third-party software, fonts and footage
+```
 
-That is the whole deployment. Every push to `main` redeploys automatically.
+## Run it locally
 
----
+```bash
+python3 -m http.server 8000
+# open http://localhost:8000
+```
 
-## Making live changes
+Any static server works. Opening the files directly with `file://` does not, because the pages fetch `content.json`.
 
-Open `/admin.html` on the deployed site and sign in.
+## Editing content
 
-Edits save to your browser immediately, so you can preview them against the
-real portfolio before anyone else sees them. **Publish** is what makes them
-live: it writes `content.json` back to GitHub, GitHub tells Vercel, and Vercel
-redeploys. The change is public in about a minute.
+**From the browser.** Open `/admin` on the live site and sign in. In Settings, paste a fine-grained GitHub token that has access to this repository only, with **Contents: Read and write**. By default the token is kept only until the tab closes. **Publish to live site** commits `content.json` (and any new images, as WebP files under `assets/img/`) to `main`; Vercel redeploys in about a minute.
 
-### One-time setup for Publish
+In the editor you can:
+- edit the profile, contact links, education, recognition and skills;
+- add, reorder and remove projects, with images, specifications and links;
+- write a case study as **chapters** (title, paragraph, optional image);
+- choose the **featured project**, shown large at the top of Selected work on the home page.
 
-Publish needs permission to write to your repository.
+**By hand.** Edit `content.json` with a script rather than a text editor (Python `json` load, change, dump with `ensure_ascii=False` and a 2-space indent), and match the shape of existing entries. Pull first: the editor also commits this file.
 
-1. GitHub → Settings → Developer settings → **Fine-grained personal access
-   tokens** → Generate new token.
-2. Repository access: **Only select repositories** → pick this repo.
-3. Permissions → Repository permissions → **Contents: Read and write**.
-   That is the only permission needed.
-4. Copy the token — GitHub shows it once.
-5. In the admin, open the **Publish** panel and fill in:
-   - Repository — `your-username/your-repo`
-   - Branch — `main`
-   - File path in repo — `content.json` (adjust if it sits in a subfolder)
-   - Personal access token — paste it
+**Résumé PDF.** After changing content, rebuild the PDF:
 
-The token is stored in your browser only. It is never committed, and it is not
-in any of these files. If you clear your browser data you will re-enter it.
+```bash
+pip install reportlab
+python3 tools/build_resume.py
+```
 
-### If you would rather not use a token
+## Deployment
 
-The admin's **Export** button downloads `content.json`. Commit that file to
-the repo yourself and Vercel redeploys the same way. Slower, but nothing to
-store.
+Vercel project `dwijvyasportfolio`, connected to this repository with no framework preset and no build command. Every push to `main` goes to production; every other branch gets a preview URL. `vercel.json` sets clean URLs, security headers, `no-cache` on `content.json` and `noindex` on the editor.
 
----
+## Accessibility and performance
 
-## Notes
+- Every animation has a still alternative under `prefers-reduced-motion`.
+- WebGL scenes pause when off-screen and step down in quality, then to a still frame, on slow devices.
+- Images and videos load lazily; `content.json` is about 15 KB.
+- Keyboard: `H` home, `W` work, `A` about, `C` contact, `R` résumé, `?` for the list.
 
-- **Images** are resized to 1280px and embedded in `content.json` on upload.
-  The first image on a project is its display image on the work index; use
-  **Make display** on any other image to promote it.
-- **The résumé** is a real file, not content — replace
-  `dwij-vyas-resume.pdf` in the repo to update it.
-- **`content.json` is the single source of truth.** Both the portfolio and
-  recruiter mode read it, so a change appears in both.
+## Credits
+
+Third-party code, fonts and footage are listed with their licences in [CREDITS.md](CREDITS.md).
+
+All other content (text, photographs, project material and the airframe model) © Dwij Vyas. All rights reserved.

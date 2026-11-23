@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Work — Dwij Vyas</title>
+<meta name="description" content="Projects by Dwij Vyas across robotics, embedded systems, digital logic and applied AI: autonomous drones, a hybrid rescue robot, a breadboard 4-bit CPU and more.">
+<meta name="author" content="Dwij Vyas">
+<meta name="theme-color" content="#F3F2EF">
+<link rel="canonical" href="https://dwijvyasportfolio.vercel.app/work">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://dwijvyasportfolio.vercel.app/work">
+<meta property="og:title" content="Work — Dwij Vyas">
+<meta property="og:description" content="Projects by Dwij Vyas across robotics, embedded systems, digital logic and applied AI: autonomous drones, a hybrid rescue robot, a breadboard 4-bit CPU and more.">
+<meta property="og:image" content="https://dwijvyasportfolio.vercel.app/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Dwij Vyas — engineering portfolio">
+<meta property="og:site_name" content="Dwij Vyas">
+<meta property="og:locale" content="en_IN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Work — Dwij Vyas">
+<meta name="twitter:description" content="Projects by Dwij Vyas across robotics, embedded systems, digital logic and applied AI: autonomous drones, a hybrid rescue robot, a breadboard 4-bit CPU and more.">
+<meta name="twitter:image" content="https://dwijvyasportfolio.vercel.app/og-image.jpg">
+<link rel="icon" href="./favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./assets/favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
+<link rel="preload" href="./fonts/BarlowCondensed-600.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./fonts/Barlow-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./fonts/BenchMono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="./vendor/lenis/lenis.css">
+<link rel="stylesheet" href="./assets/site.css">
+<!-- ══════════════════════════════════════════════════════════════════
+     CLOUD SYNC — optional. Leave blank and everything works locally.
+     Fill these in to edit from any device and publish instantly.
+     Setup takes about five minutes; see DEPLOY.md.
+     The key below is a *public* anon key by design — your row-level
+     security policy is what protects writes, not this string.
+     ══════════════════════════════════════════════════════════════════ -->
+<script>
+  window.PORTFOLIO_CLOUD = {
+    url: "",   // e.g. "https://abcdefgh.supabase.co"
+    key: ""    // the project's anon / publishable key
+  };
+</script>
+</head>
+<body data-page="work">
+<main id="main">
+  <header class="phead phead--video">
+    <!-- Footage: Mixkit, free licence (mixkit.co/license) -->
+    <video class="vbg" data-src="./assets/video/assembly.mp4" poster="./assets/video/assembly.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="./">Home</a><span aria-hidden="true">/</span><span aria-current="page">Work</span></nav>
+      <h1 class="rv"><span class="line"><span>Work</span></span></h1>
+      <p class="phead__lede" data-bind="lede"></p>
+    </div>
+  </header>
+  <section aria-labelledby="pr-h">
+    <div class="wrap">
+      <h2 class="sr" id="pr-h">Projects</h2>
+      <div class="toolbar">
+        <div class="filters" role="group" aria-label="Filter by discipline" data-bind="filters"></div>
+        <div class="views" role="group" aria-label="View">
+          <button aria-pressed="true" data-v="list">List</button><button aria-pressed="false" data-v="grid">Grid</button>
+        </div>
+      </div>
+      <ol class="rows" data-bind="rows"></ol>
+      <div class="pgrid" data-bind="grid" hidden></div>
+    </div>
+  </section>
+</main>
+<script src="./vendor/lenis/lenis.min.js"></script>
+<script src="./assets/site.js"></script>
+<script>
+Site.ready(C => {
+  const { $, $$, esc, bind, card, row, projects, disciplinesOf, DISCIPLINES, observe, peek } = Site;
+  const ps = projects();
+  const present = DISCIPLINES.map(([n]) => [n, ps.filter(p => disciplinesOf(p).includes(n)).length]).filter(([, k]) => k);
+  bind('lede', esc(`${ps.length} projects, each taken from an idea to a working prototype. Filter by discipline, or open a project for the full case study.`));
+  bind('filters', `<button aria-pressed="true" data-f="">All<sup>${ps.length}</sup></button>` +
+    present.map(([n, k]) => `<button aria-pressed="false" data-f="${esc(n)}">${esc(n)}<sup>${k}</sup></button>`).join(''));
+  bind('rows', ps.map((x, k) => row(x, k + 1)).join(''));
+  bind('grid', ps.map((x, k) => card(x, { n: k + 1 })).join(''));
+  const rows = $('[data-bind="rows"]'), grid = $('[data-bind="grid"]');
+  const setView = v => {
+    $$('.views button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+    rows.hidden = v === 'grid'; grid.hidden = v !== 'grid';
+    const u = new URL(location.href); v === 'grid' ? u.searchParams.set('view', 'grid') : u.searchParams.delete('view'); history.replaceState(null, '', u);
+    observe();
+  };
+  $('.views').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setView(b.dataset.v); });
+  if (new URLSearchParams(location.search).get('view') === 'grid') setView('grid');
+  const fb = $('[data-bind="filters"]');
+  const apply = f => {
+    $$('button', fb).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.f === f)));
+    $$('.pcard, .row').forEach(c => c.classList.toggle('is-out', !!f && !c.dataset.d.split('|').includes(f)));
+    // renumber the visible rows
+    let n = 0; $$('.row', rows).forEach(r => { if (!r.classList.contains('is-out')) r.querySelector('.row__n').textContent = String(++n).padStart(2, '0'); });
+    const u = new URL(location.href); f ? u.searchParams.set('d', f) : u.searchParams.delete('d'); history.replaceState(null, '', u);
+  };
+  fb.addEventListener('click', e => { const b = e.target.closest('button'); if (b) apply(b.dataset.f); });
+  const start = new URLSearchParams(location.search).get('d');
+  if (start && present.some(([n]) => n === start)) apply(start);
+  observe(); peek();
+});
+</script>
+</body>
+</html>

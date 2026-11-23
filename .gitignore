@@ -1,0 +1,14 @@
+# OS and editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Local tooling
+.vercel/
+node_modules/
+__pycache__/
+*.pyc
+.env
+.env.*
