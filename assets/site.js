@@ -72,7 +72,7 @@
     return (C.milestones || []).find(m => t &&
       ((m.note || '').toLowerCase().includes(t) || (m.title || '').toLowerCase().includes(t) || (x.link && m.link === x.link)));
   };
-  const yearFor = x => { const m = milestoneFor(x); return m && m.when ? String(m.when).trim() : ''; };
+  const yearFor = x => { if (x.year) return String(x.year).trim(); const m = milestoneFor(x); return m && m.when ? String(m.when).trim() : ''; };
   const projects = () => (C.projects || []).filter(x => x && x.title && x.id);
 
   // project card, used on Home and Work

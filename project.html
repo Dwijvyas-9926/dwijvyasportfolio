@@ -71,6 +71,7 @@
         </section>
         <aside aria-label="Project details"><dl class="spec" data-bind="spec"></dl></aside>
       </div>
+      <section class="case__film" data-bind="film" aria-labelledby="film-h"></section>
       <section class="chapters" data-bind="chapters" aria-label="Case study"></section>
       <section class="case__gallery" data-bind="gallery" aria-labelledby="gal-h"></section>
     </div>
@@ -120,6 +121,10 @@ Site.ready(C => {
     res && `<div><dt>Result</dt><dd>${esc(res)}</dd></div>`,
     x.link && `<div><dt>Link</dt><dd><a class="btn btn--primary" href="${esc(Site.safeHref(x.link))}"${ext(x.link)}>${linkLabel(x.link)}</a></dd></div>`,
   ].filter(Boolean).join(''));
+  // film: an optional { src, poster, caption } in content.json; nothing loads until it is played
+  const v = x.video && x.video.src ? x.video : null;
+  const film = bind('film', v ? `<h2 id="film-h">Film</h2><figure class="fade"><video controls playsinline preload="none"${v.poster ? ` poster="${esc(Site.safeHref(v.poster))}"` : ''} src="${esc(Site.safeHref(v.src))}" aria-label="${esc(v.caption || x.title + ' film')}"></video>${v.caption ? `<figcaption>${esc(v.caption)}</figcaption>` : ''}</figure>` : '');
+  if (!v && film) film.hidden = true;
   // chapters: an optional sequence in content.json; images they use leave the gallery
   const ch = Array.isArray(x.chapters) ? x.chapters.filter(c => c && c.title) : [];
   const used = new Set();
