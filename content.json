@@ -9,7 +9,7 @@
     "about1": "I'm an Electronics & Communication Engineering undergraduate at BVM. I design the board, write the firmware and build the software that ties them together — then fly, drive or run the result.",
     "about2": "I'm looking for an internship where this kind of work happens on a real team, with real deadlines.",
     "availability": "Open to internships in embedded systems, robotics and AI-driven hardware",
-    "featured": "avion"
+    "featured": "terravis"
   },
   "contact": [
     {
@@ -168,7 +168,8 @@
           "text": "AVION reached the finals of ROBOFEST Gujarat 6.0, India's biggest robotics hackathon, organised by GUJCOST at RAC Bhavnagar. The ground station has since grown into AERONEX, a standalone station for ArduPilot aircraft.",
           "image": 2
         }
-      ]
+      ],
+      "linkLabel": "Open documentation"
     },
     {
       "id": "terravis",
@@ -211,7 +212,9 @@
           "src": "./assets/img/terravis-4.webp",
           "caption": "TerraAvis airborne in drone mode, carrying a test payload"
         }
-      ]
+      ],
+      "linkLabel": "Open documentation",
+      "chapters": []
     },
     {
       "id": "cpu",
@@ -237,7 +240,9 @@
           "src": "./assets/img/cpu-2.webp",
           "caption": "Datapath simulation: registers, adder–subtractor and bus buffers"
         }
-      ]
+      ],
+      "linkLabel": "Open documentation",
+      "chapters": []
     },
     {
       "id": "chatbot",
@@ -274,7 +279,9 @@
           "src": "./assets/img/chatbot-4.webp",
           "caption": "Enclosure prepared for printing in Bambu Studio"
         }
-      ]
+      ],
+      "linkLabel": "Open documentation",
+      "chapters": []
     },
     {
       "id": "cnc",
@@ -298,7 +305,9 @@
           "src": "./assets/img/cnc-1.webp",
           "caption": "Fusion 360 model of the dual-axis frame and stepper drives"
         }
-      ]
+      ],
+      "linkLabel": "Open documentation",
+      "chapters": []
     },
     {
       "id": "pmt9zekyv",
@@ -327,7 +336,9 @@
           "src": "./assets/img/pmt9zekyv-4.webp",
           "caption": "HackAtom certificate presentation, URFU Summer University 2026"
         }
-      ]
+      ],
+      "linkLabel": "Open documentation",
+      "chapters": []
     }
   ],
   "domains": [
@@ -426,5 +437,32 @@
         "3D modelling"
       ]
     }
-  ]
+  ],
+  "achievements": [
+    {
+      "title": "Summer University — Ural Federal University",
+      "emphasis": "Team lead",
+      "note": "Selected for URFU's international Summer University in Yekaterinburg, Russia, where I led our HackAtom team in building DoseGuard, a standards-grounded irradiation decision engine. Prototyped, presented and defended the work in an international academic setting."
+    },
+    {
+      "title": "Embedded Systems Intern — Modsonic Instruments",
+      "emphasis": "",
+      "note": "Modsonic Instruments Mfg. Co. (P) Ltd, Vallabh Vidyanagar. Built embedded firmware (C, AVR128DA48) for Modsonic's ultrasonic thickness gauges — upgraded the display/keypad interface to SPI TFT and capacitive touch, and developed an I²C LCD driver for the next-gen hardware."
+    },
+    {
+      "title": "ROBOFEST Gujarat 6.0 Hackathon",
+      "emphasis": "Finalist",
+      "note": "AVION, our autonomous disaster-relief delivery drone, reached the finals of India's biggest robotics hackathon, organised by GUJCOST at RAC Bhavnagar."
+    },
+    {
+      "title": "Robofest Gujarat 5.0",
+      "emphasis": "Finalist",
+      "note": "TerraAvis, a hybrid drone–tank rescue robot, reached the state finals."
+    }
+  ],
+  "achievement": {
+    "title": "Summer University — Ural Federal University",
+    "emphasis": "Team lead",
+    "note": "Selected for URFU's international Summer University in Yekaterinburg, Russia, where I led our HackAtom team in building DoseGuard, a standards-grounded irradiation decision engine. Prototyped, presented and defended the work in an international academic setting."
+  }
 }
