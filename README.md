@@ -73,7 +73,7 @@ In the editor you can:
 
 **By hand.** Edit `content.json` with a script rather than a text editor (Python `json` load, change, dump with `ensure_ascii=False` and a 2-space indent), and match the shape of existing entries. Pull first: the editor also commits this file.
 
-**Résumé PDF.** After changing content, rebuild the PDF:
+**Résumé PDF.** Rebuilt automatically: when `content.json` changes on `main` (including every Publish from `/admin`), the GitHub Action in `.github/workflows/resume.yml` runs `tools/build_resume.py` and commits the new `Dwij_Vyas_Resume.pdf`, and Vercel redeploys. To build it locally:
 
 ```bash
 pip install reportlab

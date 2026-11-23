@@ -16,7 +16,7 @@ from reportlab.platypus import (BaseDocTemplate, PageTemplate, Frame, Paragraph,
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONTS = os.path.join(ROOT, 'tools', 'fonts')
-SITE = 'https://dwijportfolio-kappa.vercel.app'
+SITE = 'https://dwijvyasportfolio.vercel.app'
 
 INK, INK2, LINE, ACCENT = HexColor('#111214'), HexColor('#5F6166'), HexColor('#DCDBD7'), HexColor('#F05627')
 
@@ -118,6 +118,7 @@ def build():
     # projects
     section('Projects')
     def year_for(x):
+        if x.get('year'): return str(x['year']).strip()
         t = str(x.get('title', '')).lower()
         for m in ms:
             if t and (t in str(m.get('note', '')).lower() or t in str(m.get('title', '')).lower() or (x.get('link') and m.get('link') == x.get('link'))):

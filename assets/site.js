@@ -154,7 +154,7 @@
   function contactBlock() {
     return `
     <section class="contact" id="contact" aria-labelledby="contact-h">
-      <video class="vbg contact__v" data-src="./assets/video/assembly.mp4" poster="./assets/video/assembly.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <img class="vbg contact__v" src="./assets/video/assembly.jpg" alt="" loading="lazy" decoding="async" aria-hidden="true">
       <div class="wrap">
         <h2 class="contact__h rv" id="contact-h"><span class="line"><span>Let’s build</span></span><span class="line"><span>something real.</span></span></h2>
         <p class="contact__intro" data-bind="contactIntro"></p>
@@ -347,7 +347,7 @@
     if (!fine || reduced) return;
     $$('.rows', root).forEach(list => {
       if (list.dataset.peek) return; list.dataset.peek = '1';
-      const pk = document.createElement('div'); pk.className = 'peek'; pk.innerHTML = '<img alt="" decoding="async">';
+      const pk = document.createElement('li'); pk.className = 'peek'; pk.setAttribute('aria-hidden', 'true'); pk.innerHTML = '<img alt="" decoding="async">';
       list.appendChild(pk);
       const img = pk.firstChild; let px = 0, py = 0, tx = 0, ty = 0, on = false;
       list.addEventListener('pointerover', e => { const a = e.target.closest('[data-peek]'); if (a && a.dataset.peek) { if (img.dataset.k !== a.dataset.peek) { img.dataset.k = a.dataset.peek; img.onerror = () => { img.onerror = null; img.src = a.dataset.peekFull; }; img.src = a.dataset.peek; } on = true; pk.classList.add('is-on'); } });

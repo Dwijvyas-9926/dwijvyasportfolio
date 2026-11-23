@@ -13,19 +13,19 @@ Every push to `main` goes live in about a minute. Any other branch gets a previe
 - `admin.html` — browser-only content editor at `/admin`. Publishes by committing `content.json` to this repo via the GitHub API.
 - `content.json` — **single source of truth for all content.** Keys: `profile`, `contact`, `education`, `milestones`, `projects`, `domains`. Project images are `{ src, caption }` where `src` is a path under `assets/img/` (the editor may add new ones as data URIs; both work). A project may carry `chapters: [{ title, text, image }]` (image = 1-based index into its `images`) for a chaptered case study. Optional `year` (shown when no milestone names the project) and `video: { src, poster, caption }` (a film on the case study; files in `assets/video/`).
 - `vercel.json` — clean URLs, security headers, `no-cache` on `content.json`, `noindex` on `/admin.html`. Keep these.
-- `Dwij_Vyas_Resume.pdf` (rebuild with `python3 tools/build_resume.py`), `og-image.jpg`, `favicon.ico` + `assets/favicon-*.png`, `robots.txt`, `sitemap.xml`.
+- `Dwij_Vyas_Resume.pdf` (rebuilt automatically by `.github/workflows/resume.yml`; locally: `python3 tools/build_resume.py`), `og-image.jpg`, `favicon.ico` + `assets/favicon-*.png`, `robots.txt`, `sitemap.xml`.
 - `README.md` (for people, with `docs/home.jpg`), `CREDITS.md` (third-party licences), `tools/` (résumé builder and its fonts), `.vercelignore` (keeps these out of the deployment).
 
 ## Performance rules
 - Every page starts `window.__content = fetch('./content.json')` in its `<head>`; `assets/site.js` waits for it and for DOMContentLoaded before rendering. Keep both.
 - No `backdrop-filter` and no always-running CSS animation on full-screen layers. The only `mix-blend-mode` is the cursor smoke (`.smoke--lit`), which is low-resolution and removed from rendering whenever its trail has faded.
-- Below-the-fold images use `loading="lazy"`; `warm()` in `site.js` preloads them at idle. The home page preloads three.js and the model at low priority and starts the airframe scene after the hero intro.
+- Below-the-fold images use `loading="lazy"`; `warm()` in `site.js` preloads them at idle. The home page modulepreloads three.js at low priority; the model is fetched by `drone.js` when the airframe scene starts after the hero intro.
 
 ## How to make changes
 - **Content** (projects, text, education, milestones, links, chapters): edit `content.json` only. Never hard-code content into the pages.
   - Edit it with a script (Python `json` load → modify → dump with `ensure_ascii=False`, 2-space indent). Match the existing schema exactly.
   - New images: resize to max 1280 px wide, save as WebP under `assets/img/`, add a 720 px copy under `assets/img/thumb/`, reference the original by path.
-- **Résumé PDF**: replace `Dwij_Vyas_Resume.pdf`, keep the filename. The online résumé at `/resume` builds itself from `content.json`.
+- **Résumé PDF**: built from `content.json` by `tools/build_resume.py`. The GitHub Action `.github/workflows/resume.yml` rebuilds and commits it on every push to `main` that changes `content.json` (so every Publish from `/admin`). Don't edit the PDF by hand. The online résumé at `/resume` builds itself from `content.json`.
 - **Design / behaviour**: edit `assets/site.css`, `assets/site.js` or the page. Every value that reaches markup goes through `Site.esc`; every href from content through `Site.safeHref`.
 
 ## Rules

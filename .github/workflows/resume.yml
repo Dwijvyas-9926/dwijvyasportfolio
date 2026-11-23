@@ -1,0 +1,37 @@
+# Rebuild Dwij_Vyas_Resume.pdf whenever content.json changes on main
+# (a Publish from /admin is a commit to content.json), then commit the new PDF.
+name: Rebuild résumé PDF
+
+on:
+  push:
+    branches: [main]
+    paths: [content.json, tools/build_resume.py]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: resume
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install reportlab==4.2.5
+      - run: python3 -m json.tool content.json > /dev/null
+      - run: python3 tools/build_resume.py
+      - name: Commit the PDF if it changed
+        run: |
+          if git diff --quiet -- Dwij_Vyas_Resume.pdf; then echo "Résumé unchanged"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Dwij_Vyas_Resume.pdf
+          git commit -m "Rebuild résumé PDF from content.json"
+          git pull --rebase origin main
+          git push
