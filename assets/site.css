@@ -66,13 +66,31 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .mono{font-family:var(--mono);font-size:13px;letter-spacing:0;font-feature-settings:"tnum" 1}
 
 /* ── chrome: preloader, grain, progress, cursor ─────────── */
-.pre{position:fixed;inset:0;z-index:90;background:var(--ink);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:0 var(--gx) var(--s4);
+.boot{position:fixed;inset:0;z-index:90;background:var(--ink);color:#fff;display:grid;grid-template-rows:auto 1fr auto;padding:var(--s3) var(--gx) var(--s4);
+  background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:56px 56px;background-position:center;
   transition:transform .6s cubic-bezier(.8,0,.2,1),visibility 0s .6s;will-change:transform}
-.pre.is-done{transform:translateY(-100%);visibility:hidden}
-.pre__n{font-size:clamp(64px,10vw,160px);line-height:.9;letter-spacing:-.04em;font-family:var(--cond);font-weight:600}
-.pre__n span+span{font-size:.3em;color:rgba(255,255,255,.4);margin-left:.1em;letter-spacing:0}
-.pre__w{margin-top:var(--s2);color:rgba(255,255,255,.55)}
+.boot.is-done{transform:translateY(-100%);visibility:hidden}
+.boot__top{display:flex;justify-content:space-between;color:rgba(255,255,255,.6)}
+.boot__top span:last-child::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-right:10px;animation:pulse 0.7s ease-in-out infinite}
+.boot.is-locked .boot__top span:last-child{color:#fff}
+.boot.is-locked .boot__top span:last-child::before{animation:none;background:#2FD07A}
+.boot__scope{position:relative;align-self:center;width:100%;height:min(34vh,300px)}
+.boot__scope::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px dashed rgba(255,255,255,.16)}
+.boot__scope svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;clip-path:inset(-10% 100% -10% 0)}
+.boot__scope path{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.boot__scope i{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(240,86,39,.35)}
+.boot__lbl{position:absolute;left:0;right:0;top:100%;margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);color:rgba(255,255,255,.28)}
+.boot__lbl span{padding-left:10px;border-left:1px solid rgba(255,255,255,.16);transition:color .25s,border-color .25s}
+.boot__lbl span.on{color:#fff;border-color:var(--accent)}
+.boot__bot{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--s3);color:rgba(255,255,255,.6)}
+.boot__n{font:600 clamp(64px,10vw,150px)/.85 var(--cond);letter-spacing:-.03em;color:#fff;font-feature-settings:"tnum" 1}
+.boot__n span+span{font-size:.3em;color:rgba(255,255,255,.4);margin-left:.12em;letter-spacing:0}
+@media (max-width:700px){.boot__bot{flex-direction:column;align-items:flex-start}.boot__lbl{font-size:11px}}
 body.is-pre{overflow:hidden}
+.smoke{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;display:none}
+.smoke.is-live{display:block}
+.smoke--haze{z-index:38}
+.smoke--lit{z-index:39;mix-blend-mode:lighten}
 .grain{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
@@ -445,11 +463,11 @@ body.is-locked{overflow:hidden}
   .pre .ch,.rv .line>span{transform:none}
   .pre .hero__portrait img,.pre .hero__meta,.pre .hero__foot,.fade{opacity:1;transform:none;filter:none}
   .grain{animation:none}
-  .pre{display:none}
+  .boot,.smoke{display:none!important}
   .sys{height:auto}.sys__stage{position:relative;height:auto}
 }
 @media print{
-  .hdr,.hero__cta,.lb,.wordmark,.contact__cta,.strip,.grain,.cur,.prog{display:none!important}
+  .hdr,.hero__cta,.lb,.wordmark,.contact__cta,.strip,.grain,.cur,.prog,.smoke,.boot{display:none!important}
   .hero{height:auto;min-height:0}.hero__portrait,.hero::after{display:none}
   .hero__name,.hero__foot,.hero__meta{position:static;padding:12px 0}
   body,.contact{background:#fff;color:#000}

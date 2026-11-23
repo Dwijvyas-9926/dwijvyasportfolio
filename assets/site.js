@@ -191,7 +191,26 @@
   const INTRO_KEY = 'dwij.intro.v1';
   let showIntro = false;
   try { showIntro = !reduced && !sessionStorage.getItem(INTRO_KEY) && page === 'home'; } catch (e) {}
-  const intro = showIntro ? `<div class="pre" id="pre" aria-hidden="true"><p class="pre__n mono"><span id="preN">00</span><span>/100</span></p><p class="pre__w mono">Dwij Vyas — portfolio</p></div>` : '';
+  // loading screen: a scope trace that goes from bits, to a carrier, to the modulated signal
+  function bootTrace() {
+    const mid = 120, pts = [];
+    const bits = [1, 0, 1, 1, 0, 1, 0, 0], bw = 400 / bits.length;
+    let d = `M0,${mid + 46}`;
+    bits.forEach((b, i) => { const y = b ? mid - 46 : mid + 46; d += ` V${y} H${((i + 1) * bw).toFixed(1)}`; });
+    d += ` V${mid}`;
+    for (let x = 400; x <= 800; x += 2) pts.push([x, mid - Math.sin((x - 400) / 400 * Math.PI * 2 * 9) * 46]);
+    for (let x = 802; x <= 1200; x += 2) { const u = (x - 800) / 400; pts.push([x, mid - Math.sin(u * Math.PI * 2 * 9) * 46 * (0.55 + 0.45 * Math.cos(u * Math.PI * 2 * 1.5 + Math.PI)) / 1]); }
+    return d + pts.map(p => ` L${p[0]},${p[1].toFixed(1)}`).join('');
+  }
+  const intro = showIntro ? `<div class="boot" id="boot" aria-hidden="true">
+    <div class="boot__top mono"><span>Dwij Vyas</span><span id="bootS">Acquiring signal</span></div>
+    <div class="boot__scope">
+      <svg id="bootSvg" viewBox="0 0 1200 240" preserveAspectRatio="none"><path id="bootP" d="${bootTrace()}"/></svg>
+      <i id="bootDot"></i>
+      <p class="boot__lbl mono"><span>Bits</span><span>Carrier</span><span>Modulated</span></p>
+    </div>
+    <div class="boot__bot"><p class="boot__n"><span id="bootN">00</span><span>%</span></p><p class="mono">Electronics &amp; Communication Engineering</p></div>
+  </div>` : '';
   document.body.insertAdjacentHTML('afterbegin', intro + '<a class="skip" href="#main">Skip to content</a>' + header() + '<div class="grain" aria-hidden="true"></div><div class="prog" aria-hidden="true"><i id="prog"></i></div>' + (fine && !reduced ? '<div class="cur" id="cur" aria-hidden="true"><i></i><span id="curL"></span></div>' : ''));
   const main = $('#main');
   main.insertAdjacentHTML('afterend', contactBlock() + lightbox());
@@ -238,17 +257,23 @@
   function afterIntro(fn) { introDone ? fn() : introWait.push(fn); }
   if (showIntro) {
     document.body.classList.add('is-pre');
-    const n = $('#preN'), pre = $('#pre'), t0 = performance.now(), D = 480;
+    const n = $('#bootN'), pre = $('#boot'), path = $('#bootP'), svg = $('#bootSvg'), dot = $('#bootDot'), lbl = $$('.boot__lbl span'), t0 = performance.now(), D = 950;
+    const len = path.getTotalLength();
+    const finish = () => {
+      try { sessionStorage.setItem(INTRO_KEY, '1'); } catch (err) {}
+      pre.classList.add('is-done'); document.body.classList.remove('is-pre'); sfx('land');
+      introDone = true; introWait.forEach(f => f()); introWait.length = 0;
+      setTimeout(() => pre.remove(), 800);
+    };
     const tick = now => {
-      const x = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - x, 3);
+      const x = Math.min(1, (now - t0) / D), e = x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
       n.textContent = String(Math.round(e * 100)).padStart(2, '0');
+      const p = path.getPointAtLength(e * len);
+      svg.style.clipPath = `inset(-10% ${(100 - p.x / 12).toFixed(2)}% -10% 0)`;
+      dot.style.left = (p.x / 12).toFixed(2) + '%'; dot.style.top = (p.y / 2.4).toFixed(2) + '%';
+      lbl.forEach((l, k) => l.classList.toggle('on', p.x >= k * 400));
       if (x < 1) requestAnimationFrame(tick);
-      else {
-        try { sessionStorage.setItem(INTRO_KEY, '1'); } catch (err) {}
-        pre.classList.add('is-done'); document.body.classList.remove('is-pre'); sfx('land');
-        introDone = true; introWait.forEach(f => f()); introWait.length = 0;
-        setTimeout(() => pre.remove(), 800);
-      }
+      else { $('#bootS').textContent = 'Signal locked'; pre.classList.add('is-locked'); setTimeout(finish, 160); }
     };
     requestAnimationFrame(tick);
   }
@@ -269,6 +294,52 @@
     document.addEventListener('mouseenter', () => cur.classList.add('is-on'));
     const run = () => { cx += (tx - cx) * 0.22; cy += (ty - cy) * 0.22; cur.style.transform = `translate3d(${cx.toFixed(1)}px,${cy.toFixed(1)}px,0)`; requestAnimationFrame(run); };
     requestAnimationFrame(run);
+  }
+
+  // smoke that trails the cursor. Two layers share one drawing: a faint haze, and a copy blended
+  // "lighten" so anything dark beneath it (type, most of all) takes the accent colour. Both layers
+  // are low-resolution and are switched off entirely whenever the trail has faded.
+  if (fine && !reduced) {
+    const S = 0.3, MAX = 90;
+    const lit = document.createElement('canvas'), haze = document.createElement('canvas');
+    lit.className = 'smoke smoke--lit'; haze.className = 'smoke smoke--haze';
+    lit.setAttribute('aria-hidden', 'true'); haze.setAttribute('aria-hidden', 'true');
+    document.body.append(haze, lit);
+    const lx = lit.getContext('2d'), hx = haze.getContext('2d');
+    const puff = document.createElement('canvas'); puff.width = puff.height = 96;
+    { const g = puff.getContext('2d'), rg = g.createRadialGradient(48, 48, 0, 48, 48, 48);
+      rg.addColorStop(0, 'rgba(240,86,39,1)'); rg.addColorStop(0.45, 'rgba(240,86,39,.45)'); rg.addColorStop(1, 'rgba(240,86,39,0)');
+      g.fillStyle = rg; g.fillRect(0, 0, 96, 96); }
+    const size = () => { lit.width = haze.width = Math.ceil(innerWidth * S); lit.height = haze.height = Math.ceil(innerHeight * S); };
+    size(); addEventListener('resize', size);
+    const ps = []; let px = -1, py = -1, live = false, tk = 0;
+    const frame = () => {
+      lx.clearRect(0, 0, lit.width, lit.height); hx.clearRect(0, 0, haze.width, haze.height);
+      tk += 0.05;
+      for (let i = ps.length - 1; i >= 0; i--) {
+        const p = ps[i];
+        p.x += p.vx + Math.sin(tk + p.s) * 0.12; p.y += p.vy; p.vx *= 0.95; p.vy = p.vy * 0.95 - 0.012;
+        p.r += p.g; p.a *= 0.955;
+        if (p.a < 0.012) { ps.splice(i, 1); continue; }
+        lx.globalAlpha = p.a; lx.drawImage(puff, p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+      }
+      hx.globalAlpha = 0.22; hx.drawImage(lit, 0, 0);
+      if (ps.length) requestAnimationFrame(frame);
+      else { live = false; lit.classList.remove('is-live'); haze.classList.remove('is-live'); }
+    };
+    addEventListener('pointermove', e => {
+      if (e.pointerType === 'touch') return;
+      const x = e.clientX * S, y = e.clientY * S;
+      if (px < 0) { px = x; py = y; }
+      const dx = x - px, dy = y - py, d = Math.hypot(dx, dy), n = Math.min(5, 1 + Math.floor(d / 5));
+      for (let k = 0; k < n && ps.length < MAX; k++) {
+        const t = (k + 1) / n;
+        ps.push({ x: px + dx * t, y: py + dy * t, vx: dx * 0.05 + (Math.random() - 0.5) * 0.5, vy: dy * 0.05 + (Math.random() - 0.5) * 0.5,
+          r: 9 + Math.random() * 7, g: 0.35 + Math.random() * 0.3, a: Math.min(0.85, 0.3 + d * 0.03), s: Math.random() * 6.28 });
+      }
+      px = x; py = y;
+      if (!live && ps.length) { live = true; lit.classList.add('is-live'); haze.classList.add('is-live'); requestAnimationFrame(frame); }
+    }, { passive: true });
   }
 
   // hover preview that follows the pointer over the index rows

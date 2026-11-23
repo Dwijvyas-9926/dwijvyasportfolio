@@ -18,7 +18,7 @@ Every push to `main` goes live in about a minute. Any other branch gets a previe
 
 ## Performance rules
 - Every page starts `window.__content = fetch('./content.json')` in its `<head>`; `assets/site.js` waits for it and for DOMContentLoaded before rendering. Keep both.
-- No `backdrop-filter`, no `mix-blend-mode`, no always-running CSS animation on full-screen layers.
+- No `backdrop-filter` and no always-running CSS animation on full-screen layers. The only `mix-blend-mode` is the cursor smoke (`.smoke--lit`), which is low-resolution and removed from rendering whenever its trail has faded.
 - Below-the-fold images use `loading="lazy"`; `warm()` in `site.js` preloads them at idle. The home page preloads three.js and the model at low priority and starts the airframe scene after the hero intro.
 
 ## How to make changes
