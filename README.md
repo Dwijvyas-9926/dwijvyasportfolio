@@ -2,6 +2,8 @@
 
 **Live:** https://dwijvyasportfolio.vercel.app
 
+[![The landing page: the name set large behind a portrait, with discipline and location plates](docs/home.jpg)](https://dwijvyasportfolio.vercel.app)
+
 Portfolio of Dwij Vyas, Electronics & Communication Engineering undergraduate at Birla Vishvakarma Mahavidyalaya. It covers hardware and the software that runs it: rescue drones, a breadboard 4-bit microprocessor, embedded AI, and the AERONEX ground station.
 
 The site is plain HTML, CSS and JavaScript with no build step and no framework. All content comes from one file, `content.json`, and a browser-based editor at `/admin` updates that file through the GitHub API.
@@ -37,14 +39,17 @@ The site is plain HTML, CSS and JavaScript with no build step and no framework. 
 │   ├── system.js           chapter stepping and part callouts for the airframe
 │   ├── aeronex.glb         airframe model
 │   ├── img/                project photographs (WebP, max 1280 px wide)
+│   │   └── thumb/          720 px versions for lists, the film strip and hover previews
 │   ├── video/              background footage
-│   └── favicon-*.png, apple-touch-icon.png, avatar.webp, portrait-hero.webp
+│   └── favicon-32.png, favicon-192.png, apple-touch-icon.png, avatar.webp, portrait-hero.webp
 ├── fonts/                  self-hosted WOFF2 fonts and their licence (OFL.txt)
 ├── vendor/                 three.js and Lenis, with their licences
-├── tools/build_resume.py   builds Dwij_Vyas_Resume.pdf from content.json
+├── tools/build_resume.py   builds Dwij_Vyas_Resume.pdf from content.json (fonts in tools/fonts)
+├── docs/home.jpg           screenshot used in this README
 ├── Dwij_Vyas_Resume.pdf, og-image.jpg, favicon.ico, robots.txt, sitemap.xml
 ├── CLAUDE.md               working notes for AI coding agents
-└── CREDITS.md              third-party software, fonts and footage
+├── CREDITS.md              third-party software, fonts and footage
+└── .vercelignore           keeps docs, tools and these notes out of the deployed site
 ```
 
 ## Run it locally
@@ -58,7 +63,7 @@ Any static server works. Opening the files directly with `file://` does not, bec
 
 ## Editing content
 
-**From the browser.** Open `/admin` on the live site and sign in. In Settings, paste a fine-grained GitHub token that has access to this repository only, with **Contents: Read and write**. By default the token is kept only until the tab closes. **Publish to live site** commits `content.json` (and any new images, as WebP files under `assets/img/`) to `main`; Vercel redeploys in about a minute.
+**From the browser.** Open `/admin` on the live site and sign in. In Settings, paste a fine-grained GitHub token that has access to this repository only, with **Contents: Read and write**. By default the token is kept only until the tab closes. **Publish to live site** commits `content.json` (and any new images, as WebP files under `assets/img/` with a small copy under `assets/img/thumb/`) to `main`; Vercel redeploys in about a minute.
 
 In the editor you can:
 - edit the profile, contact links, education, recognition and skills;
@@ -82,8 +87,11 @@ Vercel project `dwijvyasportfolio`, connected to this repository with no framewo
 ## Accessibility and performance
 
 - Every animation has a still alternative under `prefers-reduced-motion`.
+- `content.json` (about 16 KB) is requested while the HTML is still parsing, so text appears within the first second.
+- Lists, the film strip and hover previews use 720 px thumbnails; images further down the page are fetched in the background once the first screen has settled, so they are already there when you scroll to them.
+- The 3D engine and airframe model download at low priority from the start and are compiled before the section is reached.
 - WebGL scenes pause when off-screen and step down in quality, then to a still frame, on slow devices.
-- Images and videos load lazily; `content.json` is about 15 KB.
+- Fonts, libraries, images and video are served with long cache lifetimes; the next page is prefetched when a link is hovered.
 - Keyboard: `H` home, `W` work, `A` about, `C` contact, `R` résumé, `?` for the list.
 
 ## Credits

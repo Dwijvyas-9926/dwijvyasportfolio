@@ -32,6 +32,11 @@
 <link rel="preload" href="./fonts/Archivo-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="./fonts/BenchMono-400.woff2" as="font" type="font/woff2" crossorigin>
 <script type="importmap">{"imports":{"three":"./vendor/three/three.module.min.js"}}</script>
+<link rel="modulepreload" href="./vendor/three/three.module.min.js" fetchpriority="low">
+<link rel="modulepreload" href="./assets/drone.js" fetchpriority="low">
+<link rel="modulepreload" href="./vendor/three/jsm/loaders/GLTFLoader.js" fetchpriority="low">
+<link rel="preload" href="./assets/aeronex.glb" as="fetch" crossorigin fetchpriority="low">
+<script>window.__content=fetch("./content.json").then(function(r){return r.ok?r.json():null}).catch(function(){return null})</script>
 <link rel="stylesheet" href="./vendor/lenis/lenis.css">
 <link rel="stylesheet" href="./assets/site.css">
 <script type="application/ld+json">
@@ -195,13 +200,20 @@
 // the aircraft, its engine and model load only when the section approaches
 const sys = document.getElementById('sys');
 if (sys && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  const io = new IntersectionObserver(async ([e]) => {
-    if (!e.isIntersecting) return;
-    io.disconnect();
+  // start as soon as the first screen has settled, so the aircraft is ready before you reach it;
+  // on a data-saving connection, wait until the section is near
+  let begun = false;
+  const begin = async () => {
+    if (begun) return; begun = true;
     try { const m = await import('./assets/drone.js'); window.SysDrone = await m.start(document.getElementById('droneCanvas'), sys); sys.dispatchEvent(new Event('drone:ready')); }
     catch (err) { sys.classList.add('sys--nodrone'); console.warn('[drone]', err); }
-  }, { rootMargin: '800px 0px' });
+  };
+  const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { io.disconnect(); begin(); } }, { rootMargin: '1200px 0px' });
   io.observe(sys);
+  if (!(navigator.connection && navigator.connection.saveData)) {
+    const idle = window.requestIdleCallback || (f => setTimeout(f, 400));
+    Site.ready(() => Site.afterIntro(() => setTimeout(() => idle(begin, { timeout: 1200 }), 900)));
+  }
 } else if (sys) sys.classList.add('sys--nodrone');
 </script>
 <script>
@@ -264,14 +276,14 @@ Site.ready(C => {
   // film strip: one frame per project photo, in order, looped once for the scroll
   const frames = [];
   ps.forEach(x => (x.images || []).slice(0, 3).forEach(im => frames.push({ src: im.src, cap: im.caption || x.title, id: x.id, t: x.title })));
-  const strip = frames.map((f, k) => `<a class="strip__f" href="${Site.projectUrl(f.id)}" aria-label="${esc(f.t)}"><img src="${esc(f.src)}" alt="" loading="lazy" decoding="async"><span class="mono">${String(k + 1).padStart(2, '0')}</span></a>`).join('');
+  const strip = frames.map((f, k) => `<a class="strip__f" href="${Site.projectUrl(f.id)}" aria-label="${esc(f.t)}">${Site.tImg(f.src)}<span class="mono">${String(k + 1).padStart(2, '0')}</span></a>`).join('');
   bind('strip', strip);
 
   // statement words fill in as you read; the hero has depth on scroll; the strip glides with it
   const stage = $('#top'), heroName = $('#name'), heroImg = $('#heroPortrait'), heroFoot = $('#heroFoot'), st = $('#statement');
   const reel = $('.strip__reel'), stripSec = $('.strip');
   const words = $$('.w', st);
-  const hp = { x: 0, tx: 0 };
+  const hp = { x: 0, tx: 0 }; let lastN = 0;
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
   function onScroll() {
     const y = scrollY;
@@ -283,7 +295,7 @@ Site.ready(C => {
     const r = st.getBoundingClientRect();
     const q = clamp((innerHeight * 0.85 - r.top) / (r.height + innerHeight * 0.35));
     const n = Math.round(q * words.length);
-    words.forEach((w, k) => w.classList.toggle('on', k < n));
+    if (n !== lastN) { for (let k = Math.min(n, lastN); k < Math.max(n, lastN); k++) words[k].classList.toggle('on', k < n); lastN = n; }
     const vb = $('.vband .vbg');
     if (vb && !reduced) { const b = vb.parentElement.getBoundingClientRect(); const t = clamp((innerHeight - b.top) / (innerHeight + b.height)); vb.style.transform = `translate3d(0,${((t - 0.5) * 14).toFixed(1)}%,0)`; }
     if (reel && !reduced) {

@@ -21,7 +21,7 @@ export async function start(canvas, section) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   const lowPower = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
   let degraded = lowPower;
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, degraded ? 1 : 1.75));
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, degraded ? 1 : 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -36,9 +36,9 @@ export async function start(canvas, section) {
   const camera = new THREE.PerspectiveCamera(26, 1, 0.1, 100);
   const key = new THREE.DirectionalLight(0xffffff, 2.2);
   key.position.set(-3, 7, 4); key.castShadow = true;
-  key.shadow.mapSize.set(1024, 1024);
+  key.shadow.mapSize.set(512, 512);
   Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4, near: 1, far: 20 });
-  key.shadow.radius = 14; key.shadow.blurSamples = 20; key.shadow.bias = -0.0006;
+  key.shadow.radius = 10; key.shadow.blurSamples = 8; key.shadow.bias = -0.0006;
   const rim = new THREE.DirectionalLight(0xF05627, 1.4); rim.position.set(4, 1.5, -5);
   const fill = new THREE.DirectionalLight(0xd8e3ff, 0.6); fill.position.set(5, 3, 4);
   scene.add(key, rim, fill);
@@ -72,13 +72,14 @@ export async function start(canvas, section) {
   }
   const norm = n => String(n || '').toLowerCase().replace(/[\s_]+/g, ' ').trim();
   const parts = {};
-  drone.traverse(o => { const n = norm(o.name); for (const k in PART_OF) if (n === norm(PART_OF[k])) parts[k] = o; });
+  drone.updateMatrixWorld(true);
+  drone.traverse(o => { const n = norm(o.name); for (const k in PART_OF) if (n === norm(PART_OF[k])) parts[k] = { o, c: o.worldToLocal(new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3())) }; });
 
   let W = 1, H = 1;
   function resize() {
     const r = canvas.getBoundingClientRect();
     W = Math.max(1, r.width); H = Math.max(1, r.height);
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, degraded ? 1 : 1.75));
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, degraded ? 1 : 1.5));
     renderer.setSize(W, H, false);
     camera.aspect = W / H; camera.fov = W < 700 ? 34 : 26;
     camera.position.set(0, 2.4, W < 700 ? 11.5 : 10.2); camera.lookAt(0, 0.2, 0);
@@ -113,8 +114,8 @@ export async function start(canvas, section) {
   }
   // screen position (canvas px) of a block's part, or null
   function project(key) {
-    const o = parts[key]; if (!o) return null;
-    bb.setFromObject(o).getCenter(v); v.project(camera);
+    const pt = parts[key]; if (!pt) return null;
+    v.copy(pt.c); pt.o.localToWorld(v); v.project(camera);
     return { x: (v.x * 0.5 + 0.5) * W, y: (-v.y * 0.5 + 0.5) * H };
   }
 
@@ -131,7 +132,10 @@ export async function start(canvas, section) {
   document.addEventListener('visibilitychange', update);
   canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); running = false; still = true; section.classList.add('sys--nodrone'); });
   new ResizeObserver(resize).observe(canvas);
-  resize(); update();
+  resize();
+  // compile every shader before the first visible frame, off the critical path
+  try { await renderer.compileAsync(scene, camera); } catch (e) {}
+  update();
   section.classList.add('sys--drone');
   return { project, setChapter(i) { chapter = i; }, get running() { return running; } };
 }

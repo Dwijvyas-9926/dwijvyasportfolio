@@ -29,7 +29,9 @@
         if (r.ok) { const j = await r.json(); if (j && j[0] && valid(j[0].content)) return { c: j[0].content }; }
       } catch (e) {}
     }
-    const r = await fetch('./content.json', { cache: 'no-store' });
+    const early = window.__content && await window.__content;
+    if (valid(early)) return { c: early };
+    const r = await fetch('./content.json');
     return { c: await r.json() };
   }
 
@@ -43,6 +45,9 @@
   const linkLabel = href => !href ? '' : /github\.com/i.test(href) ? 'Source on GitHub' : /drive\.google\.com/i.test(href) ? 'Project files' : 'Open live project';
   const ext = href => /^https?:/i.test(href) ? ' target="_blank" rel="noopener"' : '';
   const safeHref = h => /^(https?:|mailto:|tel:|\.?\/|#)/i.test(String(h || '')) ? String(h) : '#';
+  // small version of a project image for lists and previews; falls back to the original if there is none
+  const thumb = src => { const m = /^(\.\/assets\/img\/)([^/]+\.webp)$/.exec(String(src || '')); return m ? `${m[1]}thumb/${m[2]}` : src; };
+  const tImg = (src, alt = '') => `<img src="${esc(thumb(src))}" data-full="${esc(src)}" onerror="this.onerror=null;this.src=this.dataset.full" alt="${esc(alt)}" loading="lazy" decoding="async">`;
   const projectUrl = id => `./project.html?p=${encodeURIComponent(id)}`;
   const ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>';
 
@@ -78,7 +83,7 @@
     const ds = disciplinesOf(x).join('|');
     return `
     <a class="pcard${wide ? ' pcard--wide' : ''} fade" href="${projectUrl(x.id)}" data-d="${esc(ds)}">
-      <div class="pcard__img">${n ? `<span class="pcard__n">${String(n).padStart(2, '0')}</span>` : ''}${im ? `<img src="${esc(im.src)}" alt="${esc(im.caption || x.title)}" loading="lazy" decoding="async">` : ''}
+      <div class="pcard__img">${n ? `<span class="pcard__n">${String(n).padStart(2, '0')}</span>` : ''}${im ? tImg(im.src, im.caption || x.title) : ''}
         <span class="pcard__go">${ARROW}</span></div>
       <div class="pcard__body">
         ${wide ? `<span class="pcard__cat">${esc(cat)}</span>` : ''}
@@ -98,13 +103,13 @@
     const res = resultFor(x), yr = yearFor(x);
     return `
     <li class="row fade" data-d="${esc(disciplinesOf(x).join('|'))}">
-      <a class="row__a" href="${projectUrl(x.id)}" data-cursor="View" data-peek="${im ? esc(im.src) : ''}">
+      <a class="row__a" href="${projectUrl(x.id)}" data-cursor="View" data-peek="${im ? esc(thumb(im.src)) : ''}" data-peek-full="${im ? esc(im.src) : ''}">
         <span class="row__n mono">${String(n).padStart(2, '0')}</span>
         <span class="row__t"><span class="row__title">${esc(x.title)}</span><span class="row__s">${esc(x.sub)}</span></span>
         <span class="row__m mono">${esc(cat)}</span>
         <span class="row__y mono">${esc(yr || '')}</span>
         <span class="row__r">${res ? `<span class="mono">${esc(res)}</span>` : ''}<i>${ARROW}</i></span>
-        ${im ? `<span class="row__thumb"><img src="${esc(im.src)}" alt="" loading="lazy" decoding="async"></span>` : ''}
+        ${im ? `<span class="row__thumb">${tImg(im.src)}</span>` : ''}
       </a>
     </li>`;
   }
@@ -214,7 +219,7 @@
   // smooth scroll
   let lenis = null;
   if (!reduced && window.Lenis) {
-    lenis = new Lenis({ duration: 1.1, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+    lenis = new Lenis({ lerp: 0.16, wheelMultiplier: 1.05 });
     const raf = t => { lenis.raf(t); requestAnimationFrame(raf); };
     requestAnimationFrame(raf);
   }
@@ -233,7 +238,7 @@
   function afterIntro(fn) { introDone ? fn() : introWait.push(fn); }
   if (showIntro) {
     document.body.classList.add('is-pre');
-    const n = $('#preN'), pre = $('#pre'), t0 = performance.now(), D = 1100;
+    const n = $('#preN'), pre = $('#pre'), t0 = performance.now(), D = 480;
     const tick = now => {
       const x = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - x, 3);
       n.textContent = String(Math.round(e * 100)).padStart(2, '0');
@@ -242,7 +247,7 @@
         try { sessionStorage.setItem(INTRO_KEY, '1'); } catch (err) {}
         pre.classList.add('is-done'); document.body.classList.remove('is-pre'); sfx('land');
         introDone = true; introWait.forEach(f => f()); introWait.length = 0;
-        setTimeout(() => pre.remove(), 1200);
+        setTimeout(() => pre.remove(), 800);
       }
     };
     requestAnimationFrame(tick);
@@ -271,10 +276,10 @@
     if (!fine || reduced) return;
     $$('.rows', root).forEach(list => {
       if (list.dataset.peek) return; list.dataset.peek = '1';
-      const pk = document.createElement('div'); pk.className = 'peek'; pk.innerHTML = '<img alt="">';
+      const pk = document.createElement('div'); pk.className = 'peek'; pk.innerHTML = '<img alt="" decoding="async">';
       list.appendChild(pk);
       const img = pk.firstChild; let px = 0, py = 0, tx = 0, ty = 0, on = false;
-      list.addEventListener('pointerover', e => { const a = e.target.closest('[data-peek]'); if (a && a.dataset.peek) { if (img.src !== a.dataset.peek) img.src = a.dataset.peek; on = true; pk.classList.add('is-on'); } });
+      list.addEventListener('pointerover', e => { const a = e.target.closest('[data-peek]'); if (a && a.dataset.peek) { if (img.dataset.k !== a.dataset.peek) { img.dataset.k = a.dataset.peek; img.onerror = () => { img.onerror = null; img.src = a.dataset.peekFull; }; img.src = a.dataset.peek; } on = true; pk.classList.add('is-on'); } });
       list.addEventListener('pointerleave', () => { on = false; pk.classList.remove('is-on'); });
       list.addEventListener('pointermove', e => { const r = list.getBoundingClientRect(); tx = e.clientX - r.left; ty = e.clientY - r.top; }, { passive: true });
       const run = () => { if (on) { px += (tx - px) * 0.12; py += (ty - py) * 0.12; pk.style.transform = `translate3d(${px.toFixed(1)}px,${py.toFixed(1)}px,0) rotate(${((tx - px) * 0.04).toFixed(2)}deg)`; } requestAnimationFrame(run); };
@@ -361,7 +366,7 @@
     once.unobserve(en.target);
     en.target.classList.add('in');
     if (en.target.dataset.count) countUp(en.target);
-  }), { rootMargin: '0px 0px -10% 0px' });
+  }), { rootMargin: '0px 0px -4% 0px' });
   const observe = (root = document) => $$('.rv, .fade, [data-count]', root).forEach(el => once.observe(el));
   function countUp(el) {
     const to = parseFloat(el.dataset.count), dec = +el.dataset.dec || 0;
@@ -399,6 +404,25 @@
         } else if (v.src) v.pause();
       }, { rootMargin: '200px 0px' }).observe(v);
     });
+  }
+
+  // once the page has settled, fetch the images further down (and the hover previews) so they are
+  // already there when you reach them, and let the browser prefetch the next page on hover
+  function warm() {
+    if (navigator.connection && navigator.connection.saveData) return;
+    const idle = window.requestIdleCallback || (f => setTimeout(f, 300));
+    const go = () => idle(() => {
+      const urls = new Set();
+      $$('img[loading="lazy"]').forEach(i => urls.add(i.getAttribute('src')));
+      $$('a[data-peek]').forEach(a => a.dataset.peek && urls.add(a.dataset.peek));
+      [...urls].filter(Boolean).slice(0, 40).forEach(u => { const im = new Image(); im.decoding = 'async'; im.src = u; });
+    });
+    document.readyState === 'complete' ? go() : addEventListener('load', go, { once: true });
+    if (HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules')) {
+      const s = document.createElement('script'); s.type = 'speculationrules';
+      s.textContent = JSON.stringify({ prefetch: [{ where: { and: [{ href_matches: '/*' }, { not: { href_matches: '/admin*' } }, { not: { href_matches: '/*.pdf' } }] }, eagerness: 'moderate' }] });
+      document.head.appendChild(s);
+    }
   }
 
   // live local time
@@ -449,15 +473,17 @@
   const waiting = [];
   let loaded = false;
   window.Site = {
-    ready(fn) { loaded ? fn(C) : waiting.push(fn); },
+    ready(fn) { if (!loaded) return void waiting.push(fn); fn(C); observe(); magnetic(); peek(); },
     $, $$, esc, rich, bind, splitKind, linkLabel, ext, projectUrl, card, row, feature, projects, resultFor, disciplinesOf, DISCIPLINES, sfx,
-    observe, magnetic, lbOpen, reduced, fine, ARROW, yearFor, afterIntro, peek, safeHref,
+    observe, magnetic, lbOpen, reduced, fine, ARROW, yearFor, afterIntro, peek, safeHref, thumb, tImg,
   };
-  loadContent().then(({ c, draft }) => {
+  // content can arrive before the page's own script has registered, so wait for the document first
+  const domReady = new Promise(res => document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', res, { once: true }) : res());
+  Promise.all([loadContent(), domReady]).then(([{ c, draft }]) => {
     C = c; loaded = true;
     renderChrome();
     waiting.forEach(fn => { try { fn(C); } catch (e) { console.error(e); } });
-    observe(); magnetic(); clocks(); videos(); peek(); onProg();
+    observe(); magnetic(); clocks(); videos(); peek(); onProg(); warm();
     // on touch screens a tap brings a film frame into colour; a second tap follows the link
     if (!fine) document.addEventListener('click', e => { const f = e.target.closest('.strip__f'); if (f && !f.classList.contains('is-color')) { e.preventDefault(); $$('.strip__f.is-color').forEach(x => x.classList.remove('is-color')); f.classList.add('is-color'); } });
     if (draft) {

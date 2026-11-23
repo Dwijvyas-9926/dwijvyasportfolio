@@ -24,7 +24,7 @@
   #else
   precision mediump float;
   #endif
-  uniform vec2 uRes, uRip;
+  uniform vec2 uRes, uRip, uC;
   uniform float uTime, uIntro, uWarp, uFreq, uR, uRipT;
   uniform vec3 uB[${N}];
 
@@ -79,13 +79,14 @@
 
   void main(){
     vec2 p0 = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
+    if (distance(p0, uC) > uR * 2.9) { gl_FragColor = vec4(0.0); return; }
     vec2 p = warp(p0), g;
     float f = field(p, g);
     float w = fwidth(f);
     float a = smoothstep(1.0 - w * 1.5, 1.0 + w * 1.5, f);
 
     // soft contact shadow below the body
-    vec2 gs; float fs = field(warp(p0 - vec2(0.0, uR * 0.2)), gs);
+    vec2 gs; float fs = field(p - vec2(0.0, uR * 0.2), gs);
     float shadow = smoothstep(0.3, 1.0, fs) * (1.0 - a) * 0.16;
 
     float s = 0.6 / max(f, 0.65);
@@ -142,13 +143,13 @@
   const loc = gl.getAttribLocation(prog, 'p');
   gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   const U = n => gl.getUniformLocation(prog, n);
-  const uRes = U('uRes'), uTime = U('uTime'), uIntro = U('uIntro'), uB = U('uB'), uWarp = U('uWarp'), uFreq = U('uFreq'), uR = U('uR'), uRip = U('uRip'), uRipT = U('uRipT');
+  const uRes = U('uRes'), uTime = U('uTime'), uIntro = U('uIntro'), uB = U('uB'), uWarp = U('uWarp'), uFreq = U('uFreq'), uR = U('uR'), uRip = U('uRip'), uRipT = U('uRipT'), uC = U('uC');
   gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
   let W = 1, H = 1, dpr = 1, home = { x: 0, y: 0 }, R = 100;
   function resize() {
     const r = canvas.getBoundingClientRect();
-    dpr = Math.min(devicePixelRatio || 1, lowPower || degraded ? 1 : 1.5);
+    dpr = Math.min(devicePixelRatio || 1, lowPower || degraded ? 0.8 : 1.25);
     W = Math.max(1, Math.round(r.width * dpr)); H = Math.max(1, Math.round(r.height * dpr));
     canvas.width = W; canvas.height = H; gl.viewport(0, 0, W, H);
     const narrow = r.width < 800;
@@ -204,6 +205,7 @@
 
     gl.uniform2f(uRes, W, H); gl.uniform1f(uTime, t); gl.uniform1f(uIntro, ease);
     gl.uniform1f(uWarp, R * 0.16); gl.uniform1f(uFreq, 1.0 / (R * 0.9)); gl.uniform1f(uR, R);
+    gl.uniform2f(uC, home.x + pull.x * 0.5, home.y + pull.y * 0.5);
     gl.uniform2f(uRip, rip.x, rip.y); gl.uniform1f(uRipT, rip.t);
     gl.uniform3fv(uB, B);
     gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);

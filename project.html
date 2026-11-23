@@ -29,6 +29,7 @@
 <link rel="preload" href="./fonts/BarlowCondensed-600.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="./fonts/Barlow-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="./fonts/BenchMono-400.woff2" as="font" type="font/woff2" crossorigin>
+<script>window.__content=fetch("./content.json").then(function(r){return r.ok?r.json():null}).catch(function(){return null})</script>
 <link rel="stylesheet" href="./vendor/lenis/lenis.css">
 <link rel="stylesheet" href="./assets/site.css">
 <!-- ══════════════════════════════════════════════════════════════════
@@ -109,7 +110,7 @@ Site.ready(C => {
   bind('sub', esc(x.sub));
   const yr = yearFor(x);
   bind('tags', (yr ? `<span class="tag">${esc(yr)}</span>` : '') + splitKind(x.kind).map(k => `<span class="tag">${esc(k)}</span>`).join(''));
-  bind('cover', imgs[0] ? `<button class="case__cover" data-i="0" aria-label="Enlarge image: ${esc(imgs[0].caption || x.title)}"><img src="${esc(imgs[0].src)}" alt="${esc(imgs[0].caption || x.title)}"></button>` : '');
+  bind('cover', imgs[0] ? `<button class="case__cover" data-i="0" aria-label="Enlarge image: ${esc(imgs[0].caption || x.title)}"><img fetchpriority="high" src="${esc(imgs[0].src)}" alt="${esc(imgs[0].caption || x.title)}"></button>` : '');
   bind('desc', esc(x.desc));
   const res = resultFor(x), tech = x.tech || [];
   bind('spec', [
@@ -142,7 +143,7 @@ Site.ready(C => {
     bind('pager', `<div class="wrap next__in">
         <a class="next__prev link" href="${projectUrl(prev.id)}">Previous: ${esc(prev.title)}</a>
         <a class="next__a" href="${projectUrl(next.id)}" data-cursor="View">
-          <span class="next__img">${ni ? `<img src="${esc(ni.src)}" alt="" loading="lazy" decoding="async">` : ''}</span>
+          <span class="next__img">${ni ? `${Site.tImg(ni.src)}` : ''}</span>
           <span class="next__body"><span class="mono">Next project ${String((i + 1) % ps.length + 1).padStart(2, '0')}</span><span class="next__t">${esc(next.title)}</span><span class="next__s">${esc(next.sub)}</span></span>
         </a>
       </div>`);
