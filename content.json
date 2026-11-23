@@ -9,7 +9,7 @@
     "about1": "I'm an Electronics & Communication Engineering undergraduate at BVM. I design the board, write the firmware and build the software that ties them together — then fly, drive or run the result.",
     "about2": "I'm looking for an internship where this kind of work happens on a real team, with real deadlines.",
     "availability": "Open to internships in embedded systems, robotics and AI-driven hardware",
-    "featured": "terravis"
+    "featured": "aeronex"
   },
   "contact": [
     {
@@ -88,6 +88,114 @@
     }
   ],
   "projects": [
+    {
+      "id": "aeronex",
+      "title": "AERONEX",
+      "sub": "Open-source ground station for ArduCopter drones",
+      "kind": "Software & AI · Robotics · Ground control station",
+      "desc": "AERONEX is a free, open-source ground station for ArduCopter drones that I designed and built, shipped as a Windows app. It takes one aircraft through its whole life in a single place: design the frame, import its CAD model as a digital twin, install firmware, calibrate and tune, rehearse in a physics simulator, plan and fly the mission, then read the flight log. It grew out of AVION, where setting up and flying our drone meant juggling several tools written for experts. AERONEX is written for the student holding their first Pixhawk: every page says in plain words what it does, what it does not, and what to do next.",
+      "tech": [
+        "TypeScript",
+        "React 19",
+        "Vite",
+        "Three.js",
+        "Zustand",
+        "MapLibre GL",
+        "Electron",
+        "MAVLink 1/2",
+        "Web Serial",
+        "ArduCopter 4.6 / 4.7",
+        "ArduPilot SITL",
+        "Vitest",
+        "Playwright"
+      ],
+      "link": "https://aeronexstation.vercel.app",
+      "linkLabel": "Visit the AERONEX website",
+      "accent": "#d2b184",
+      "form": "aerial",
+      "year": "2026",
+      "video": {
+        "src": "./assets/video/aeronex-film.mp4",
+        "poster": "./assets/video/aeronex-film.jpg",
+        "caption": "The AERONEX film: 44 seconds from design to flight"
+      },
+      "images": [
+        {
+          "src": "./assets/img/aeronex-1.webp",
+          "caption": "AERONEX overview: the aircraft's 3D model with its live instruments, here on the built-in virtual aircraft"
+        },
+        {
+          "src": "./assets/img/aeronex-2.webp",
+          "caption": "Frame Studio: five questions about the parts you own become a frame with its weight, balance and hover throttle worked out"
+        },
+        {
+          "src": "./assets/img/aeronex-3.webp",
+          "caption": "Digital Twin: the real CAD assembly, imported and oriented, ready to fly on screen"
+        },
+        {
+          "src": "./assets/img/aeronex-4.webp",
+          "caption": "Firmware: the right ArduCopter build is chosen for the board and every byte is checked after writing"
+        },
+        {
+          "src": "./assets/img/aeronex-5.webp",
+          "caption": "Mission Planning: a five-waypoint route with its length, flight-time prediction and ground clearance"
+        },
+        {
+          "src": "./assets/img/aeronex-6.webp",
+          "caption": "Flight Simulator: a 450-class quadcopter in GUIDED mode, with wind and fault injection"
+        },
+        {
+          "src": "./assets/img/aeronex-7.webp",
+          "caption": "Flight Logs: a report that says what went wrong in the flight and what to do about it"
+        },
+        {
+          "src": "./assets/img/aeronex-8.webp",
+          "caption": "Log replay: the recorded flight played back in 3D beside its instruments"
+        }
+      ],
+      "chapters": [
+        {
+          "title": "Why I built it",
+          "image": 1,
+          "text": "On AVION, our disaster-relief drone, the ground side was a patchwork: one program to flash firmware, another to calibrate, a third to plan the mission, and our own page for the live view. Each assumed you already knew ArduPilot. AERONEX puts the whole job in one app, in the order you would do it — design, set up, fly, review — and explains each step as it goes. It is free, open source under Apache 2.0, and needs no account."
+        },
+        {
+          "title": "Design the aircraft",
+          "image": 2,
+          "text": "Frame Studio starts from the parts you own. Answer five questions about propellers, motors, battery and material, and it works out the geometry, all-up weight, thrust-to-weight ratio and hover throttle, then hands over the files to cut or print (DXF, SVG, PDF, STL) with a parts list. No CAD is needed to get a frame that balances."
+        },
+        {
+          "title": "A digital twin of the real airframe",
+          "image": 3,
+          "text": "If the aircraft already exists in CAD, AERONEX imports the assembly directly — STEP, GLB, OBJ or STL — read in the browser and never uploaded. You set which way is forward and up once, and the same model then appears everywhere: on the overview, in the simulator and in log replay."
+        },
+        {
+          "title": "Set up without guesswork",
+          "image": 4,
+          "text": "The firmware page picks the correct stable ArduCopter build from 316 board definitions generated from ArduPilot's own hardware files, writes it, and verifies it. Sensor, radio, ESC and flight-mode calibration, motor test, PID tuning and servo outputs follow, and every parameter carries ArduPilot's own description, units and range. A preflight check then gives a go or no-go verdict that follows ArduCopter's pre-arm checks."
+        },
+        {
+          "title": "Rehearse before the props spin",
+          "image": 6,
+          "text": "The built-in virtual aircraft is a six-degree-of-freedom physics model stepped at 400 Hz that speaks real MAVLink, so every page of the app works against it exactly as it would against a flight controller. You can fly it from the keyboard, add wind, and inject faults to see how the aircraft and the app respond. Simulated data is always labelled as simulated."
+        },
+        {
+          "title": "Plan the mission",
+          "image": 5,
+          "text": "Missions are drawn on a real map over measured ground heights, with a geofence, payload delivery and a flight-time prediction. Uploads are read back from the aircraft and compared before the app calls them sent. Against ArduCopter itself in simulation, flown waypoints landed within 1.5 m of the plan, and a predicted 98-second flight took 104 seconds."
+        },
+        {
+          "title": "Review the flight",
+          "image": 7,
+          "text": "Flight Logs opens ArduPilot .bin and .tlog files, checks them for vibration, power and GPS problems, and says what it found and what to do. Any field can be charted, and the flight can be replayed in 3D. Drone Doctor does the same for a connected aircraft: a health scan that names the fault and the fix."
+        },
+        {
+          "title": "Built to be trusted",
+          "image": null,
+          "text": "A ground station sends commands to a real aircraft, so safety is designed in. Commands go only to ArduCopter and wait for the aircraft to confirm each one; motor tests need a props-off confirmation; a lost link hands over to the aircraft's own failsafe. The MAVLink parser was written from scratch and validates the checksum of every frame. More than 780 unit tests cover the code, and 39 flight tests run against ArduPilot's own simulator on ArduCopter 4.6 and 4.7. AERONEX has been connected to a physical Pixhawk 2.4.8, and release 0.3.7 is available to download."
+        }
+      ]
+    },
     {
       "id": "avion",
       "title": "AVION",
