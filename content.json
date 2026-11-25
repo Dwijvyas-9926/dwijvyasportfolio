@@ -353,6 +353,37 @@
       "chapters": []
     },
     {
+      "id": "pmt9zekyv",
+      "title": "DoseGuard",
+      "sub": "Nuclear irradiation decision engine",
+      "kind": "Decision systems · Nuclear science · Data design",
+      "desc": "A standards-grounded decision engine for gamma irradiation, built on 30+ IAEA research papers and cross-referenced against each destination country's own regulatory limits (e.g. FDA 21 CFR 179.26). Generates a downloadable, accurate prescription report with tailored recommendations for your exact product and facility. Built for HackAtom Summer University 2026.",
+      "tech": [],
+      "link": "https://6a57ef8a93ac1568f52c2965--unique-torte-e3e753.netlify.app/",
+      "accent": "#c6a077",
+      "form": "aerial",
+      "images": [
+        {
+          "src": "./assets/img/pmt9zekyv-1.webp",
+          "caption": "From product to validated dose: the DoseGuard console"
+        },
+        {
+          "src": "./assets/img/pmt9zekyv-2.webp",
+          "caption": "A compliant prescription, with the dose physics behind it"
+        },
+        {
+          "src": "./assets/img/pmt9zekyv-3.webp",
+          "caption": "The deliverable: a one-click, auditable PDF prescription report"
+        },
+        {
+          "src": "./assets/img/pmt9zekyv-4.webp",
+          "caption": "HackAtom certificate presentation, URFU Summer University 2026"
+        }
+      ],
+      "linkLabel": "Open documentation",
+      "chapters": []
+    },
+    {
       "id": "chatbot",
       "title": "Friendly AI Chatbot",
       "sub": "Embedded voice assistant",
@@ -412,37 +443,6 @@
         {
           "src": "./assets/img/cnc-1.webp",
           "caption": "Fusion 360 model of the dual-axis frame and stepper drives"
-        }
-      ],
-      "linkLabel": "Open documentation",
-      "chapters": []
-    },
-    {
-      "id": "pmt9zekyv",
-      "title": "DoseGuard",
-      "sub": "Nuclear irradiation decision engine",
-      "kind": "Decision systems · Nuclear science · Data design",
-      "desc": "A standards-grounded decision engine for gamma irradiation, built on 30+ IAEA research papers and cross-referenced against each destination country's own regulatory limits (e.g. FDA 21 CFR 179.26). Generates a downloadable, accurate prescription report with tailored recommendations for your exact product and facility. Built for HackAtom Summer University 2026.",
-      "tech": [],
-      "link": "https://6a57ef8a93ac1568f52c2965--unique-torte-e3e753.netlify.app/",
-      "accent": "#c6a077",
-      "form": "aerial",
-      "images": [
-        {
-          "src": "./assets/img/pmt9zekyv-1.webp",
-          "caption": "From product to validated dose: the DoseGuard console"
-        },
-        {
-          "src": "./assets/img/pmt9zekyv-2.webp",
-          "caption": "A compliant prescription, with the dose physics behind it"
-        },
-        {
-          "src": "./assets/img/pmt9zekyv-3.webp",
-          "caption": "The deliverable: a one-click, auditable PDF prescription report"
-        },
-        {
-          "src": "./assets/img/pmt9zekyv-4.webp",
-          "caption": "HackAtom certificate presentation, URFU Summer University 2026"
         }
       ],
       "linkLabel": "Open documentation",
