@@ -341,11 +341,11 @@
       "form": "lattice",
       "images": [
         {
-          "src": "./assets/img/cpu-1.webp",
+          "src": "./assets/img/cpu-mwykz2ei-1.webp",
           "caption": "The working processor, wired on breadboards from 74-series logic ICs"
         },
         {
-          "src": "./assets/img/cpu-2.webp",
+          "src": "./assets/img/cpu-mwykz7nz-2.webp",
           "caption": "Datapath simulation: registers, adder–subtractor and bus buffers"
         }
       ],
